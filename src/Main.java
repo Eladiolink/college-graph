@@ -9,11 +9,12 @@ public class Main{
 
         Grafo HelloGrafo = new Grafo(true,10);
 
-//        HelloGrafo.addAresta(0,4);
         HelloGrafo.addAresta(1,4);
-        HelloGrafo.addAresta(1,3);
-        HelloGrafo.addAresta(1,2);
-        HelloGrafo.addAresta(3,1);
+        HelloGrafo.addAresta(4,3);
+        HelloGrafo.addAresta(3,2);
+
+        HelloGrafo.printGrafo();
+
 
         Node AUX = HelloGrafo.listaGrafo[0];
 
@@ -137,16 +138,18 @@ public class Main{
         Node AUX = G[s];
 
         while (AUX != null){
-            if ( cor[AUX.data] == Color.BRANCO )
+            if ( cor[AUX.data] == Color.BRANCO ) {
                 TS_Dfs_visit(G,AUX.data,cor, tempoInicio, tempoFim, q);
+            }
 
             AUX = AUX.nextNode;
         }
 
+        System.out.println(s);
         cor[s] = Color.PRETO;
         Main.tempo += 1;
         tempoFim[s] =  Main.tempo;
-        q.enqueue(s);
+        q.enqueueFront(s);
     }
 
 }

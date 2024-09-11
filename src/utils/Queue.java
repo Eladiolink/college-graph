@@ -31,6 +31,23 @@ public class Queue {
         return lastNode;
     }
 
+    public boolean enqueueFront(int data){
+        if(data<0) return false;
+
+        Node elmNew = new Node(data);
+
+        if(this.queue == null) {
+            this.queue = elmNew;
+            this.lastQueue = elmNew;
+            return true;
+        }
+
+        elmNew.nextNode = this.queue;
+        this.queue = elmNew;
+
+        return true;
+    }
+
     public void printQueue(){
         Node lastNode = this.lastQueue;
 
