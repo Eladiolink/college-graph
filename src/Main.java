@@ -7,7 +7,7 @@ public class Main{
     public static void main(String[] args) {
         System.out.println("Hello Grafo");
 
-        Grafo HelloGrafo = new Grafo(false,10);
+        Grafo HelloGrafo = new Grafo(true,10);
 
 //        HelloGrafo.addAresta(0,4);
         HelloGrafo.addAresta(1,4);
@@ -20,7 +20,8 @@ public class Main{
 
 //        HelloGrafo.printGrafo();
 //          bfs(HelloGrafo.listaGrafo,1);
-          dfs(HelloGrafo.listaGrafo);
+//          dfs(HelloGrafo.listaGrafo);
+            TopologicalSort(HelloGrafo.listaGrafo);
     }
 
     public static void bfs(Node[] G, int s){
@@ -75,10 +76,8 @@ public class Main{
             pai[i] = -1;
         }
 
-        for(int i=0; i< G.length ;i++) {
+        for(int i=0; i< G.length ;i++)
             if (cor[i] == Color.BRANCO) dfs_visit(G, i, cor, tempoInicio, tempoFim, pai);
-        }
-
 
         for(int i=0; i<G.length ; i++)
             System.out.println("["+i+"]"+" - Tempo Descoberta: "+tempoInicio[i]+", Tempo Finalização: "+tempoFim[i]+", Pai: "+pai[i]);
@@ -105,5 +104,50 @@ public class Main{
         Main.tempo += 1;
         tempoFim[s] =  Main.tempo;
     }
+
+    private static void TopologicalSort(Node [] G){
+        Color cor[] = new Color[G.length];
+        Integer tempoInicio[] = new Integer[G.length];
+        Integer tempoFim[] = new Integer[G.length];
+        Main.tempo = 0;
+
+        for(int i=0; i< G.length ;i++) {
+            cor[i] = Color.BRANCO;
+            tempoInicio[i] = -1;
+            tempoFim[i] = -1;
+        }
+
+        Queue q = new Queue();
+        for(int i=0; i< G.length ;i++) {
+            if (cor[i] == Color.BRANCO) TS_Dfs_visit(G, i, cor, tempoInicio, tempoFim, q);
+        }
+
+        for(int i=0; i<G.length ; i++)
+            System.out.println("["+i+"]"+" - Tempo Descoberta: "+tempoInicio[i]+", Tempo Finalização: "+tempoFim[i]);
+
+        q.printQueue();
+    }
+
+    private static void TS_Dfs_visit(Node[] G, int s, Color[] cor,Integer [] tempoInicio, Integer [] tempoFim, Queue q){
+
+        tempo++;
+        tempoInicio[s] =  Main.tempo;
+        cor[s] = Color.CINZA;
+
+        Node AUX = G[s];
+
+        while (AUX != null){
+            if ( cor[AUX.data] == Color.BRANCO )
+                TS_Dfs_visit(G,AUX.data,cor, tempoInicio, tempoFim, q);
+
+            AUX = AUX.nextNode;
+        }
+
+        cor[s] = Color.PRETO;
+        Main.tempo += 1;
+        tempoFim[s] =  Main.tempo;
+        q.enqueue(s);
+    }
+
 }
 
