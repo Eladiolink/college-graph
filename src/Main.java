@@ -1,28 +1,17 @@
-import utils.Color;
-import utils.Node;
-import utils.Queue;
+import utils.*;
+
 
 public class Main{
     private static int tempo = 0;
     public static void main(String[] args) {
-        System.out.println("Hello Grafo");
+        System.out.println("Hello utils.Grafo");
 
-        Grafo HelloGrafo = new Grafo(true,10);
+        Grafo OkGrafo = GetGraphByFIle.gg("1.txt");
+        OkGrafo.printGrafo();
 
-        HelloGrafo.addAresta(1,4);
-        HelloGrafo.addAresta(4,3);
-        HelloGrafo.addAresta(3,2);
-
-        HelloGrafo.printGrafo();
-
-
-        Node AUX = HelloGrafo.listaGrafo[0];
-
-
-//        HelloGrafo.printGrafo();
 //          bfs(HelloGrafo.listaGrafo,1);
 //          dfs(HelloGrafo.listaGrafo);
-            TopologicalSort(HelloGrafo.listaGrafo);
+//            TopologicalSort(HelloGrafo.listaGrafo);
     }
 
     public static void bfs(Node[] G, int s){

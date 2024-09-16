@@ -1,4 +1,4 @@
-import utils.Node;
+package utils;
 
 public class Grafo{
     private boolean isDigrafo;
