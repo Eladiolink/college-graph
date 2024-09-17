@@ -6,14 +6,14 @@ public class Main{
     public static void main(String[] args) {
         System.out.println("Hello utils.Grafo");
 
-        Grafo OkGrafo = GetGraphByFIle.gg("1.txt");
+        Grafo OkGrafo = GetGraphByFIle.gg("3.txt");
 
         OkGrafo.printGrafo();
 
 //          bfs(OkGrafo.listaGrafo,0);
 //          dfs(OkGrafo.listaGrafo);
-//          TopologicalSort(OkGrafo.listaGrafo);
-            componentes_fortemente_conexas(OkGrafo);
+          TopologicalSort(OkGrafo.listaGrafo, true);
+//            componentes_fortemente_conexas(OkGrafo);
     }
 
     public static void bfs(Node[] G, int s){
