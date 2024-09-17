@@ -103,6 +103,7 @@ public class Grafo{
     }
 
     public void printGrafo(){
+        System.out.println();
         if(this.isLinkedList)
             printGrafoLinkedList();
         else
@@ -147,5 +148,16 @@ public class Grafo{
 
             System.out.println();
         }
+    }
+
+    public Grafo grafoTransposto(){
+        Grafo transposto = new Grafo(this.isDigrafo,this.qtdVertices,this.isLinkedList);
+
+        for(int i =0; i<this.listaGrafo.length ; i++){
+            for(Node j = this.listaGrafo[i]; j != null; j = j.nextNode){
+                transposto.addAresta(j.data,i);
+            }
+        }
+        return transposto;
     }
 }
