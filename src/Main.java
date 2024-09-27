@@ -12,8 +12,8 @@ public class Main{
 
 //          bfs(OkGrafo.listaGrafo,0);
 //          dfs(OkGrafo.listaGrafo);
-          TopologicalSort(OkGrafo.listaGrafo, true);
-//            componentes_fortemente_conexas(OkGrafo);
+//          TopologicalSort(OkGrafo.listaGrafo, true);
+            componentes_fortemente_conexas(OkGrafo);
     }
 
     public static void bfs(Node[] G, int s){
