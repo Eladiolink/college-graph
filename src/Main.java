@@ -1,232 +1,146 @@
 import utils.*;
 
+import java.util.ArrayList;
+
 
 public class Main{
-    private static int tempo = 0;
     public static void main(String[] args) {
         System.out.println("Hello utils.Grafo");
 
-        Grafo OkGrafo = GetGraphByFIle.gg("3.txt");
+        String dsp = "dijkstra1";
+        String fileName = "bf1";
+        fileName = dsp;
 
-        OkGrafo.printGrafo();
+        Graph G = GetGraphByFIle.readGraph("files/"+fileName+".graph");
 
-//          bfs(OkGrafo.listaGrafo,0);
-//          dfs(OkGrafo.listaGrafo);
-          TopologicalSort(OkGrafo.listaGrafo, true);
-//            componentes_fortemente_conexas(OkGrafo);
+        G.printGrafo();
+        bellmanFord(G, 0);
+        dagShortesPaths(G,0);
+        dijkstra(G,1);
     }
 
-    public static void bfs(Node[] G, int s){
-        System.out.println();
-        Color cor[] = new Color[G.length];
-        int pai[] = new int[G.length];
-        int distancia[] = new int[G.length];
-
-        for(int i=0; i< G.length ;i++){
-            if(i == s) continue;
-            cor[i] = Color.BRANCO;
-            pai[i] = -1;
-            distancia[i] = -1;
+    private static void initializeSingleSorce(Graph G,int s){
+        for(int i=0;i<G.GraphList.length;i++){
+            G.GraphList[i].d = Float.MAX_VALUE;
+            G.GraphList[i].pi = -1;
         }
 
-        cor[s] = Color.CINZA;
-        System.out.println("Vertice "+s+", Cor Alterada para: "+Color.CINZA);
+        G.GraphList[s].d = 0.0f;
+    }
 
-        pai[s] = -1;
-        distancia[s] = 0;
+    private static void relax(Node u, Node v, Float w){
+        if( v.d > u.d + w){
+            v.d = u.d + w;
+            v.pi = u.data;
+        }
+    }
 
-        Queue fila = new Queue();
-        fila.enqueue(s);
+    private static void relax_dijkstra(Node u, Node v, Float w, Heap h){
+        if( v.d > u.d + w){
+            h.decreaseKey(v, v.d = u.d + w);
+            v.pi = u.data;
+        }
+    }
 
-        while(fila.queue != null){
-            Node u = fila.denqueue();
+    public static void bellmanFord(Graph G, int s){
+        initializeSingleSorce(G,s);
 
-            for(Node i = G[u.data]; i != null; i = i.nextNode){
-                int elm = i.data;
-                if(cor[elm] == Color.BRANCO){
-                    cor[elm] = Color.CINZA;
-                    System.out.println("Vertice "+elm+", Cor Alterada para: "+Color.CINZA);
+        for(int i = 0; i< G.GraphList.length-1 ;i++){
+            for(Edge e : G.Edge){
+                relax(G.GraphList[e.u],G.GraphList[e.v],e.w);
+            }
+        }
 
-                    distancia[elm] = distancia[u.data] + 1;
-                    pai[elm] = u.data;
-                    fila.enqueue(elm);
-                }
+        for(Edge e : G.Edge){
+            if (G.GraphList[e.v].d > G.GraphList[e.u].d){
+                break;
+            }
+        }
+
+        System.out.println("\n\nResumo:");
+        for(int i=0; i < G.GraphList.length;i++){
+            System.out.println("["+G.GraphList[i].data+"] d: "+G.GraphList[i].d+", Pi:"+G.GraphList[i].pi);
+        }
+
+        Main.mountPath(G,s);
+    }
+
+    public static void dagShortesPaths(Graph G, int s){
+        Queue queueOfGraph = AlgoritmsOfGraph.TopologicalSort(G,false);
+
+        initializeSingleSorce(G,s);
+
+        for(  Node aux= queueOfGraph.queue;aux != null; aux = aux.nextNode){
+            int u = aux.data;
+
+            for(Vertex i = G.GraphList[u].vertex; i != null; i= i.nextVertex){
+                int v = i.data;
+                relax(G.GraphList[u],G.GraphList[v], i.weight);
+            }
+        }
+
+        queueOfGraph.printQueue();
+
+        System.out.println("\n\nResumo:");
+        for(int i=0; i < G.GraphList.length;i++){
+            System.out.println("["+G.GraphList[i].data+"] d: "+G.GraphList[i].d+", Pi:"+G.GraphList[i].pi);
+        }
+
+        Main.mountPath(G,s);
+    }
+
+    public static void dijkstra(Graph G, int s){
+
+        initializeSingleSorce(G,s);
+        ArrayList<Node> S = new ArrayList<>();
+
+        Heap h = new Heap(G.GraphList.length);
+
+        for(Node n: G.GraphList){
+            h.insert(n);
+        }
+
+        while(h.size > 0){
+            Node u = h.extractMin();
+            S.add(u);
+
+            for(Vertex v= u.vertex; v!=null; v = v.nextVertex){
+                relax_dijkstra(G.GraphList[u.data],G.GraphList[v.data],v.weight, h);
+                // TODO adicionar o Decrease key
+            }
+        }
+
+        System.out.println("\n\nResumo:");
+        for(int i=0; i < G.GraphList.length;i++){
+            System.out.println("["+G.GraphList[i].data+"] d: "+G.GraphList[i].d+", Pi:"+G.GraphList[i].pi);
+        }
+
+            Main.mountPath(G,s);
+    }
+
+    public static void mountPath(Graph G, int s){
+        Stack path;
+        System.out.println();
+        for(int i=0; i<G.GraphList.length;i++){
+            if(i==s) continue;
+            path = new Stack();
+            Node n = G.GraphList[i];
+
+            while (n.pi != -1){
+                path.push(n.data);
+                n = G.GraphList[n.pi];
             }
 
-            cor[u.data] = Color.PRETO;
-            System.out.println("Vertice "+u.data+", Cor Alterada para: "+Color.PRETO);
-
-        }
-        resumo(cor, distancia, pai, s, G.length);
-    }
-
-    public static void dfs(Node[] G){
-        System.out.println();
-        Color cor[] = new Color[G.length];
-        Integer tempoInicio[] = new Integer[G.length];
-        Integer tempoFim[] = new Integer[G.length];
-        Integer pai[] = new Integer[G.length];
-
-        Main.tempo = 0;
-
-        for(int i=0; i< G.length ;i++) {
-            cor[i] = Color.BRANCO;
-            tempoInicio[i] = -1;
-            tempoFim[i] = -1;
-            pai[i] = -1;
-        }
-
-        for(int i=0; i< G.length ;i++)
-            if (cor[i] == Color.BRANCO) dfs_visit(G, i, cor, tempoInicio, tempoFim, pai);
-
-        System.out.println("\nResumo fim da Execução");
-
-        System.out.println("COR:");
-        for(int i=0;i< G.length; i++)
-            System.out.println("Cor vertice "+i+" : "+ cor[i]);
-
-        System.out.println("\nTempo de Descoberta, Finalização e Pai:");
-        for(int i=0; i<G.length ; i++)
-            System.out.println("["+i+"]"+" - Tempo Descoberta: "+tempoInicio[i]+", Tempo Finalização: "+tempoFim[i]+", Pai: "+pai[i]);
-
-    }
-
-    private static void dfs_visit(Node[] G, int s, Color[] cor,Integer [] tempoInicio, Integer [] tempoFim, Integer [] pai){
-
-        tempo++;
-        tempoInicio[s] =  Main.tempo;
-        cor[s] = Color.CINZA;
-
-        System.out.println("Vertice "+s+", Cor Alterada para: "+Color.CINZA);
-
-        Node AUX = G[s];
-
-        while (AUX != null){
-            if ( cor[AUX.data] == Color.BRANCO ){
-                pai[AUX.data] = s;
-
-                dfs_visit(G,AUX.data,cor, tempoInicio, tempoFim, pai);
+            System.out.print("Path ["+s+"] to ["+i+"]: "+s+" ~> ");
+            while (path.getTop() != null) {
+                int elm = path.pop();
+                if(elm!=i)
+                    System.out.print(elm+ " ~> ");
+                else
+                    System.out.println(elm);
             }
-            AUX = AUX.nextNode;
-        }
-
-        cor[s] = Color.PRETO;
-        System.out.println("Vertice "+s+", Cor Alterada para: "+Color.PRETO);
-        Main.tempo += 1;
-        tempoFim[s] =  Main.tempo;
-    }
-
-    private static Queue TopologicalSort(Node [] G, boolean resume){
-        Color cor[] = new Color[G.length];
-        Integer tempoInicio[] = new Integer[G.length];
-        Integer tempoFim[] = new Integer[G.length];
-        Integer pai[] = new Integer[G.length];
-        Main.tempo = 0;
-
-        for(int i=0; i< G.length ;i++) {
-            cor[i] = Color.BRANCO;
-            tempoInicio[i] = -1;
-            tempoFim[i] = -1;
-            pai[i] = -1;
-        }
-
-        Queue q = new Queue();
-        for(int i=0; i< G.length ;i++) {
-            if (cor[i] == Color.BRANCO) TS_Dfs_visit(G, i, cor, tempoInicio, tempoFim, pai, q);
-        }
-
-        if(resume) {
-            System.out.println("\nResumo fim da Execução");
-
-            System.out.println("COR:");
-            for (int i = 0; i < G.length; i++)
-                System.out.println("Cor vertice " + i + " : " + cor[i]);
-
-            System.out.println("\nTempo de Descoberta, Finalização e Pai:");
-            for (int i = 0; i < G.length; i++)
-                System.out.println("[" + i + "]" + " - Tempo Descoberta: " + tempoInicio[i] + ", Tempo Finalização: " + tempoFim[i] + " | Pai:  " + pai[i]);
-
-            System.out.println("\nOrdem Topologica:");
-            q.printQueue();
-        }
-        return  q;
-    }
-
-    private static void TS_Dfs_visit(Node[] G, int s, Color[] cor,Integer [] tempoInicio, Integer [] tempoFim, Integer [] pai, Queue q){
-
-        tempo++;
-        tempoInicio[s] =  Main.tempo;
-        cor[s] = Color.CINZA;
-
-        Node AUX = G[s];
-
-        while (AUX != null){
-            if ( cor[AUX.data] == Color.BRANCO ) {
-                pai[AUX.data] = s;
-                TS_Dfs_visit(G,AUX.data,cor, tempoInicio, tempoFim, pai, q);
-            }
-
-            AUX = AUX.nextNode;
-        }
-
-        cor[s] = Color.PRETO;
-        Main.tempo += 1;
-        tempoFim[s] =  Main.tempo;
-        q.enqueueFront(s);
-    }
-
-    private static void resumo(Color [] cor, int [] distancia, int [] pai, int s, int length){
-
-        System.out.println("\nResumo fim da Execução");
-
-        System.out.println("COR:");
-        for(int i=0;i< length; i++){
-            System.out.println("Cor vertice "+i+" : "+ cor[i]);
-        }
-
-        System.out.println("\nDistancia do vertice "+s+":");
-        for(int i=0;i< length; i++){
-            System.out.println("Distancia "+i+" : "+ distancia[i]);
-        }
-
-        System.out.println("\nPai: ");
-        for(int i=0;i< length; i++){
-            System.out.println("Pai de "+i+" : "+ pai[i]);
         }
     }
 
-    private static void componentes_fortemente_conexas(Grafo G){
-        Grafo transpostor = G.grafoTransposto();
-
-        System.out.println("\nGrafo Transposto:");
-        transpostor.printGrafo();
-
-        Queue finalizacoes = Main.TopologicalSort(G.listaGrafo,false);
-
-        System.out.println();
-        Node [] lista = transpostor.listaGrafo;
-        Color cor[] = new Color[lista.length];
-        Integer tempoInicio[] = new Integer[lista.length];
-        Integer tempoFim[] = new Integer[lista.length];
-        Integer pai[] = new Integer[lista.length];
-
-        for(int i=0; i< lista.length ;i++) {
-            cor[i] = Color.BRANCO;
-            tempoInicio[i] = -1;
-            tempoFim[i] = -1;
-            pai[i] = -1;
-        }
-
-        System.out.println("Componentes Fortemente Conexa:");
-        for(Node i = finalizacoes.queue; i!= null ; i = i.nextNode){
-            Queue conexas = new Queue();
-            if (cor[i.data] == Color.BRANCO) TS_Dfs_visit(lista, i.data, cor, tempoInicio, tempoFim, pai, conexas);
-
-            if (conexas.queue != null)
-                conexas.printQueue();
-        }
-
-//        finalizacoes.printQueue();
-    }
 }
 

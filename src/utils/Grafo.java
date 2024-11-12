@@ -1,8 +1,11 @@
 package utils;
 
+import java.util.ArrayList;
+
 public class Grafo{
     private boolean isDigrafo;
     public Node[] listaGrafo;
+    public ArrayList<Edge> Edge = new ArrayList<>();
     public Integer[][] matrizGrafo;
     private int qtdVertices;
     private boolean isLinkedList;
@@ -38,12 +41,17 @@ public class Grafo{
 
     public boolean addAresta(int u,int v){
         boolean res = false;
-        if(this.isLinkedList){
-            res = addArestaLinkedList(u,v);
-        }else{
-            res = addArestaMatriz(u,v);
-        }
 
+        res = addArestaLinkedList(u,v);
+
+        return res;
+    }
+
+    public boolean addAresta(int u,int v, Float weight){
+        boolean res = false;
+
+        res = addArestaLinkedList(u,v, weight);
+        this.Edge.add(new Edge(u,v,weight));
         return res;
     }
 
@@ -97,6 +105,49 @@ public class Grafo{
                 elmNewU.nextNode = listaGrafo[v];
                 listaGrafo[v] = elmNewU;
             }
+        }
+
+        return true;
+    }
+
+    public boolean addArestaLinkedList(int u,int v, Float weight){
+
+        Node aux = this.listaGrafo[u];
+
+        while(aux != null){
+            if(aux.data == v) return false;
+            aux = aux.nextNode;
+        }
+
+        if(isDigrafo){
+            Node elmNew = new Node(v);
+
+//            elmNew.weight = weight;
+            if(listaGrafo[u] == null){
+                listaGrafo[u] = elmNew;
+                return true;
+            }
+
+            elmNew.nextNode = listaGrafo[u];
+            listaGrafo[u] = elmNew;
+        }else{
+            Node elmNewV = new Node(v);
+
+            if (listaGrafo[u] != null) {
+                elmNewV.nextNode = listaGrafo[u];
+            }
+
+  //          elmNewV.weight = weight;
+            listaGrafo[u] = elmNewV;
+
+            Node elmNewU = new Node(u);
+
+            if (listaGrafo[v] != null) {
+                elmNewU.nextNode = listaGrafo[v];
+            }
+
+    //        elmNewU.weight = weight;
+            listaGrafo[v] = elmNewU;
         }
 
         return true;
